@@ -1,0 +1,29 @@
+# .gitignore for TokenManagerApi and sensitive files
+# Ignore private key files
+private.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*.der
+
+# Ignore user secrets and environment files
+.env
+.env.*
+secrets.json
+
+# Ignore build outputs
+bin/
+obj/
+
+# Ignore VSCode and OS files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Ignore logs
+*.log
+
+# Ignore other sensitive files
+*.bak
+*.swp
