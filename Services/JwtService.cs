@@ -14,8 +14,6 @@ public class JwtService
 
     public JwtService(IConfiguration configuration)
     {
-
-        // Always use Azure Key Vault for PEM_PRIVATE_KEY
         var keyVaultUri = configuration["TokenManagerApi:KeyVaultUri"];
         var keyVaultSecretName = "JwtPrivateKey";
         if (string.IsNullOrEmpty(keyVaultUri))
@@ -41,18 +39,22 @@ public class JwtService
         _key = new RsaSecurityKey(rsa);
     }
 
-    public string GenerateToken(string username, string email, bool isAdmin)
+    public string GenerateToken(Models.User user)
     {
         var handler = new JwtSecurityTokenHandler();
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Sub, user.Username),
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new("userId", user.UserId),
+            new("id", user.Id.ToString()),
+            new("email", user.Email),
+            new("isAdmin", user.IsAdmin.ToString())
+        };
         var descriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new[] {
-                new Claim(JwtRegisteredClaimNames.Sub, username),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("email", email),
-                new Claim("isAdmin", isAdmin.ToString())
-            }),
-            Expires = DateTime.UtcNow.AddHours(1),
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddHours(2),
             SigningCredentials = new SigningCredentials(_key, SecurityAlgorithms.RsaSha256)
         };
         var token = handler.CreateToken(descriptor);

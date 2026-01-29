@@ -77,7 +77,7 @@ app.MapPost("/login", async (UserDto user, TokenManagerApi.Services.IUserService
         return Results.Unauthorized();
 
     // Use JwtService to sign JWT
-    var jwt = jwtService.GenerateToken(dbUser.Username, dbUser.Email, dbUser.IsAdmin);
+    var jwt = jwtService.GenerateToken(dbUser);
     return Results.Ok(new { token = jwt });
 });
 
