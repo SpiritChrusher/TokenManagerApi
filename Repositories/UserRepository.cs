@@ -19,10 +19,14 @@ public class UserRepository : IUserRepository
 
     public async Task<User?> GetUserByUsernameAsync(string username)
     {
-        return await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
+        var user = await _db.Users.SingleOrDefaultAsync(u => u.Username == username);
+        if (user == null)
+            return null;
+
+        return user;
     }
 
-    public async Task<User?> GetUserByUserIdAsync(Guid userId)
+    public async Task<User?> GetUserByUserIdAsync(string userId)
     {
         return await _db.Users.SingleOrDefaultAsync(u => u.UserId == userId);
     }

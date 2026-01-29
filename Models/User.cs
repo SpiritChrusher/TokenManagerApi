@@ -7,7 +7,7 @@ namespace TokenManagerApi.Models
         [Key]
         public int Id { get; set; }
         [Required]
-        public Guid UserId { get; set; } = Guid.NewGuid();
+        public string UserId { get; set; } = Guid.NewGuid().ToString();
         [Required]
         public string Username { get; set; }
         [Required]

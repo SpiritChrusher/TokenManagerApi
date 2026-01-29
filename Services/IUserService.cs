@@ -4,7 +4,11 @@ namespace TokenManagerApi.Services;
 
 public interface IUserService
 {
-    Task RegisterUserAsync(TokenManagerApi.Dtos.UserDto userDto);
+    Task RegisterUserAsync(Dtos.UserDto userDto);
     Task<User?> GetUserByUsernameAsync(string username);
-    Task<User?> GetUserByUserIdAsync(Guid userId);
+    Task<User?> GetUserByUserIdAsync(string userId);
+    /// <summary>
+    /// Authenticates a user by username and password. Returns the user if valid, otherwise null.
+    /// </summary>
+    Task<User?> AuthenticateUserAsync(string username, string password);
 }

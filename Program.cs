@@ -3,6 +3,9 @@ using FluentValidation.AspNetCore;
 using TokenManagerApi.Dtos;
 using Azure.Identity;
 using TokenManagerApi.Extensions;
+using Microsoft.IdentityModel.Tokens;
+using TokenManagerApi.Models;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,12 +68,12 @@ app.MapPost("/register", async (UserDto user, TokenManagerApi.Services.IUserServ
     return Results.Ok("User registered.");
 });
 
-// Login endpoint
-app.MapPost("/login", async (UserDto user, TokenManagerDbContext db, TokenManagerApi.Services.JwtService jwtService) =>
+// Login endpoint (refactored to use service layer)
+app.MapPost("/login", async (UserDto user, TokenManagerApi.Services.IUserService userService, TokenManagerApi.Services.JwtService jwtService) =>
 {
     // UserDto is validated by FluentValidation automatically
-    var dbUser = await db.Users.SingleOrDefaultAsync(u => u.Username == user.Username);
-    if (dbUser is null || !AuthenticationExtension.VerifyPassword(user.Password, dbUser.PasswordHash))
+    var dbUser = await userService.AuthenticateUserAsync(user.Username, user.Password);
+    if (dbUser is null)
         return Results.Unauthorized();
 
     // Use JwtService to sign JWT

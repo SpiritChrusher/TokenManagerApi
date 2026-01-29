@@ -16,11 +16,20 @@ public class UserService : IUserService
         var user = new User {
             Username = userDto.Username,
             Email = userDto.Email,
-            PasswordHash = Extensions.AuthenticationExtension.HashPassword(userDto.Password),
+            PasswordHash = HashPassword(userDto.Password),
             IsAdmin = userDto.IsAdmin,
-            UserId = Guid.NewGuid()
+            UserId = Guid.NewGuid().ToString()
         };
         await _userRepository.AddUserAsync(user);
+    }
+    public async Task<User?> AuthenticateUserAsync(string username, string password)
+    {
+        var user = await _userRepository.GetUserByUsernameAsync(username);
+        if (user is null)
+            return null;
+        if (!VerifyPassword(password, user.PasswordHash))
+            return null;
+        return user;
     }
 
     public async Task<User?> GetUserByUsernameAsync(string username)
@@ -28,8 +37,22 @@ public class UserService : IUserService
         return await _userRepository.GetUserByUsernameAsync(username);
     }
 
-    public async Task<User?> GetUserByUserIdAsync(Guid userId)
+    public async Task<User?> GetUserByUserIdAsync(string userId)
     {
         return await _userRepository.GetUserByUserIdAsync(userId);
+    }
+
+        private static string HashPassword(string password)
+    {
+        // TODO: Use a secure hash function in production
+        using var sha = System.Security.Cryptography.SHA256.Create();
+        var bytes = System.Text.Encoding.UTF8.GetBytes(password);
+        var hash = sha.ComputeHash(bytes);
+        return Convert.ToBase64String(hash);
+    }
+
+    private static bool VerifyPassword(string password, string hash)
+    {
+        return HashPassword(password) == hash;
     }
 }
